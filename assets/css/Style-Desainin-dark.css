@@ -1,0 +1,267 @@
+/* ================= DESAININ DARK THEME CSS ================= */
+
+/* Background Gradients */
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+}
+
+/* Portfolio Filter Buttons */
+.filter-btn {
+    padding: 12px 24px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 50px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.filter-btn:hover {
+    border-color: #f59e0b;
+    color: white;
+    background: rgba(245, 158, 11, 0.1);
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    border-color: #f59e0b;
+    color: white;
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+}
+
+.bg-gradient-animated {
+    background: linear-gradient(45deg, #0a0a0a, #1a1a2e, #16213e, #0f0f23);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+/* Keyframe Animations */
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes float {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+}
+
+@keyframes float-card {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popUp {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideOutDown {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(0.7); opacity: 0; }
+}
+
+/* Particle Effects */
+.particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 20s infinite linear;
+}
+
+/* Floating Cards */
+.floating-card {
+    animation: float-card 3s ease-in-out infinite;
+}
+
+.floating-card:nth-child(2) { animation-delay: -1s; }
+.floating-card:nth-child(3) { animation-delay: -2s; }
+
+/* Animation Classes */
+.animate-slide-down { animation: slideDown 0.8s ease-out; }
+.animate-slide-up { animation: slideUp 0.8s ease-out; }
+.animate-fade-in { animation: fadeIn 0.6s ease-out; }
+.animate-pop-up { animation: popUp 0.6s ease-out; }
+
+/* Glass Effect */
+.backdrop-blur-glass { backdrop-filter: blur(20px); }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
+::-webkit-scrollbar-thumb { 
+    background: linear-gradient(45deg, #f59e0b, #d97706);
+    border-radius: 4px;
+}
+
+/* ================= SIDEBAR NAVIGATION STYLES ================= */
+
+.sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: #4B5563 #1F2937;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: #1F2937;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #4B5563;
+    border-radius: 3px;
+}
+
+.sidebar.active {
+    transform: translateX(0) !important;
+}
+
+.sidebar-overlay.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.nav-item.active {
+    background-color: #1F2937;
+    color: white;
+}
+
+.nav-item.active i {
+    color: #f59e0b;
+}
+
+/* ================= RESPONSIVE LAYOUT ================= */
+
+/* Desktop Layout */
+@media (min-width: 1024px) {
+    .main-content {
+        margin-left: 16rem;
+        transition: margin-left 0.3s ease;
+    }
+    
+    .main-content.sidebar-collapsed {
+        margin-left: 4rem;
+    }
+    
+    .sidebar.collapsed {
+        width: 4rem;
+    }
+    
+    .sidebar.collapsed .sidebar-text {
+        display: none;
+    }
+    
+    /* Collapsed sidebar user profile adjustments */
+    .sidebar.collapsed .sidebar-header {
+        justify-content: center;
+        padding: 1rem 0.5rem;
+    }
+    
+    .sidebar.collapsed .sidebar-header > div:first-child {
+        justify-content: center;
+        width: auto;
+        height: auto;
+        padding: 0;
+        margin: 0;
+        flex: none;
+    }
+    
+    /* Target the avatar specifically */
+    .sidebar.collapsed .user-avatar {
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        font-size: 1rem !important;
+    }
+    
+    .sidebar.collapsed .sidebar-header span {
+        display: none;
+    }
+    
+    .sidebar.collapsed .sidebar-footer {
+        padding: 1rem 0.5rem;
+    }
+    
+    .sidebar.collapsed .sidebar-footer-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        border-radius: 0.5rem;
+        justify-content: center;
+    }
+    
+    .sidebar.collapsed .sidebar-footer-btn span {
+        display: none;
+    }
+    
+    .sidebar.collapsed .sidebar-footer-btn i {
+        margin: 0;
+    }
+    
+    /* Footer responsive to sidebar */
+    footer {
+        transition: margin-left 0.3s ease;
+    }
+    
+    footer.sidebar-collapsed {
+        margin-left: 4rem !important;
+    }
+}
+
+/* Custom Scrollbar for Sidebar */
+.scrollbar-thin {
+    scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: rgba(31, 41, 55, 0.5);
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.8);
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 1);
+}
+
+.scrollbar-track-gray-800::-webkit-scrollbar-track {
+    background: rgba(31, 41, 55, 0.5);
+}
+
+.scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.8);
+}
+
+/* Mobile Layout */
+@media (max-width: 1023px) {
+    .main-content {
+        padding-top: 4rem;
+    }
+}
