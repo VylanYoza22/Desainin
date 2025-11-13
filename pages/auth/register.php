@@ -56,12 +56,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } else {
                 // Hash password with strong options
                 $hashed_password = password_hash($password, PASSWORD_ARGON2ID);
+
+                // Determine role: if no admin exists yet, this user becomes admin, else user
+                $role = 'user';
+                $roleCheck = $conn->query("SELECT COUNT(*) AS c FROM users WHERE role = 'admin'");
+                if ($roleCheck && ($rowC = $roleCheck->fetch_assoc())) {
+                    if ((int)$rowC['c'] === 0) { $role = 'admin'; }
+                }
                 
-                // Insert new user
-                $stmt = $conn->prepare("INSERT INTO users (username, email, password, full_name, phone, is_active, created_at) VALUES (?, ?, ?, ?, ?, 1, NOW())");
-                $stmt->bind_param("sssss", $username, $email, $hashed_password, $full_name, $phone);
+                // Insert new user with role
+                $stmt = $conn->prepare("INSERT INTO users (username, email, password, full_name, phone, role, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, 1, NOW())");
+                $stmt->bind_param("ssssss", $username, $email, $hashed_password, $full_name, $phone, $role);
                 
                 if ($stmt->execute()) {
+                    if ($role === 'admin') {
+                        // Auto-login and redirect admin to admin dashboard
+                        $_SESSION['user_id'] = $conn->insert_id;
+                        $_SESSION['username'] = $username;
+                        $_SESSION['email'] = $email;
+                        $_SESSION['full_name'] = $full_name;
+                        $_SESSION['role'] = 'admin';
+                        $_SESSION['login_time'] = time();
+                        header('Location: ../admin/index.php');
+                        exit();
+                    }
                     $success = "Registrasi berhasil! Silakan login dengan akun baru Anda.";
                     // Redirect to login after 3 seconds
                     header("refresh:3;url=login.php");
@@ -285,7 +303,7 @@ include '../../includes/header.php';
                 <!-- Register Button -->
                 <button 
                     type="submit" 
-                    class="w-full h-12 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 text-black font-semibold rounded-lg transition"
+                    class="w-full h-12 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 text-black font-semibold rounded-lg transition focus:outline-none focus:ring-2 focus:ring-amber-400/40"
                 >
                     <i class="fas fa-user-plus mr-2"></i>
                     Daftar Sekarang
@@ -297,9 +315,9 @@ include '../../includes/header.php';
         <div class="mt-6 text-center">
             <p class="text-gray-300">
                 Sudah punya akun?
-                <a href="login.php" class="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Masuk di sini</a>
+                <a href="login.php" aria-label="Masuk ke akun" class="text-blue-400 hover:text-blue-300 font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400/30 rounded">Masuk di sini</a>
             </p>
-            <a href="../../index.php" class="inline-flex items-center mt-3 text-gray-400 hover:text-white transition-colors text-sm">
+            <a href="../../index.php" aria-label="Kembali ke beranda" class="inline-flex items-center mt-3 text-gray-400 hover:text-white transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/20 rounded">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Kembali ke beranda
             </a>

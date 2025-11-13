@@ -5,7 +5,7 @@ require_once 'config/database.php';
 // Check if user is logged in - always fetch fresh data from database
 $user = null;
 if (isset($_SESSION['user_id'])) {
-    $stmt = $conn->prepare("SELECT id, username, full_name, email, profile_picture FROM users WHERE id = ?");
+    $stmt = $conn->prepare("SELECT id, username, full_name, email, phone, profile_picture FROM users WHERE id = ?");
     $stmt->bind_param("i", $_SESSION['user_id']);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -15,13 +15,13 @@ if (isset($_SESSION['user_id'])) {
         $_SESSION['username'] = $user['username'];
         $_SESSION['full_name'] = $user['full_name'];
         $_SESSION['email'] = $user['email'];
+        $_SESSION['phone'] = $user['phone'];
         $_SESSION['profile_picture'] = $user['profile_picture'];
     }
     $stmt->close();
 }
 ?>
 <!DOCTYPE html>
-<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,12 +31,22 @@ if (isset($_SESSION['user_id'])) {
     <!-- External CSS -->
     <link rel="stylesheet" href="assets/css/Style-Desainin-dark.css">
     <link rel="stylesheet" href="assets/css/promo-popup.css">
+    
+    <!-- Global auth flags for client-side checks -->
+    <script>
+        // Expose login status and login URL (with redirect back to order page)
+        window.USER_LOGGED_IN = <?php echo $user ? 'true' : 'false'; ?>;
+        window.LOGIN_URL = 'pages/auth/login.php?redirect=' + encodeURIComponent('../../order.php');
+        // Expose user phone for order actions (from profile)
+        window.USER_PHONE = <?php echo $user && !empty($user['phone']) ? ('"' . htmlspecialchars($user['phone'], ENT_QUOTES) . '"') : 'null'; ?>;
+    </script>
 </head>
 
 <body class="bg-black text-white font-sans overflow-x-hidden">
     <!-- Animated Background -->
     <div class="fixed inset-0 -z-20 bg-gradient-animated"></div>
     <div class="particles fixed inset-0 -z-10 pointer-events-none" id="particles"></div>
+{{ ... }}
 
     <!-- Sidebar Navigation -->
     <nav class="sidebar fixed left-0 top-0 h-full w-64 bg-gray-900 border-r border-gray-800 z-50 -translate-x-full lg:translate-x-0 transition-all duration-300" id="sidebar">
@@ -81,10 +91,10 @@ if (isset($_SESSION['user_id'])) {
                 <?php endif; ?>
                 
                 <div class="flex items-center space-x-2">
-                    <button class="hidden lg:block text-gray-400 hover:text-white transition-colors" id="toggleSidebar" title="Toggle Sidebar">
+                    <button class="hidden lg:block text-gray-400 hover:text-white transition-colors" id="toggleSidebar" title="Toggle Sidebar" aria-label="Toggle Sidebar Navigation">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button class="lg:hidden text-gray-400 hover:text-white" id="closeSidebar">
+                    <button class="lg:hidden text-gray-400 hover:text-white" id="closeSidebar" aria-label="Close Sidebar Navigation">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -173,7 +183,7 @@ if (isset($_SESSION['user_id'])) {
                         <span class="sidebar-text">Get Started</span>
                     </a>
                 <?php else: ?>
-                    <a href="register.php" class="sidebar-footer-btn w-full bg-gradient-to-r from-amber-600 to-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 flex items-center justify-center">
+                    <a href="pages/auth/register.php" class="sidebar-footer-btn w-full bg-gradient-to-r from-amber-600 to-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 flex items-center justify-center">
                         <i class="fas fa-rocket mr-2"></i>
                         <span class="sidebar-text">Get Started</span>
                     </a>
@@ -185,7 +195,7 @@ if (isset($_SESSION['user_id'])) {
     <!-- Mobile Header -->
     <header class="lg:hidden fixed top-0 left-0 right-0 bg-gray-900 border-b border-gray-800 z-40">
         <div class="flex items-center justify-between px-4 py-3">
-            <button class="text-gray-400 hover:text-white" id="openSidebar">
+            <button class="text-gray-400 hover:text-white" id="openSidebar" aria-label="Open Sidebar Navigation">
                 <i class="fas fa-bars text-lg"></i>
             </button>
             <div class="flex items-center space-x-2">
@@ -220,11 +230,18 @@ if (isset($_SESSION['user_id'])) {
                         that bring your vision to life.
                     </p>
                     
+                    <?php 
+                        // Determine CTA target based on login status
+                        $buatPesananHref = $user ? 'order.php' : 'pages/auth/login.php?redirect=../../order.php';
+                    ?>
                     <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                        <a href="#services" class="bg-gradient-to-r from-amber-600 to-yellow-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-amber-700 hover:to-yellow-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <a href="<?php echo $buatPesananHref; ?>" aria-label="Buat pesanan baru" class="bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-4 rounded-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-400/40">
+                            Buat Pesanan
+                        </a>
+                        <a href="#services" aria-label="Lihat layanan Desainin" class="bg-gradient-to-r from-amber-600 to-yellow-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-amber-700 hover:to-yellow-700 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-amber-400/40">
                             View Services
                         </a>
-                        <a href="#portfolio" class="border border-gray-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-white/5 hover:border-gray-500 transition-all duration-200">
+                        <a href="#portfolio" aria-label="Lihat portfolio Desainin" class="border border-gray-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-white/5 hover:border-gray-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400/20">
                             See Portfolio
                         </a>
                     </div>
@@ -270,7 +287,7 @@ if (isset($_SESSION['user_id'])) {
             </p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
-                <div class="service-card bg-white/5 backdrop-blur-glass border border-white/10 rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:shadow-xl hover:shadow-primary/20 cursor-pointer" data-service="video">
+                <div class="service-card bg-white/5 backdrop-blur-glass border border-white/10 rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:shadow-xl hover:shadow-primary/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400/30" data-service="video" role="button" tabindex="0" aria-label="Layanan Edit Video">
                     <div class="w-20 h-20 mx-auto mb-6 bg-gradient-primary rounded-full flex items-center justify-center text-white text-3xl">
                         <i class="fas fa-video"></i>
                     </div>
@@ -286,7 +303,7 @@ if (isset($_SESSION['user_id'])) {
                     </p>
                 </div>
 
-                <div class="service-card bg-white/5 backdrop-blur-glass border border-white/10 rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:shadow-xl hover:shadow-primary/20 cursor-pointer" data-service="design">
+                <div class="service-card bg-white/5 backdrop-blur-glass border border-white/10 rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:shadow-xl hover:shadow-primary/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400/30" data-service="design" role="button" tabindex="0" aria-label="Layanan Desain Grafis">
                     <div class="w-20 h-20 mx-auto mb-6 bg-gradient-primary rounded-full flex items-center justify-center text-white text-3xl">
                         <i class="fas fa-palette"></i>
                     </div>
@@ -302,7 +319,7 @@ if (isset($_SESSION['user_id'])) {
                     </p>
                 </div>
 
-                <div class="service-card bg-white/5 backdrop-blur-glass border border-white/10 rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:shadow-xl hover:shadow-primary/20 cursor-pointer" data-service="social">
+                <div class="service-card bg-white/5 backdrop-blur-glass border border-white/10 rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:shadow-xl hover:shadow-primary/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400/30" data-service="social" role="button" tabindex="0" aria-label="Layanan Konten Sosial Media">
                     <div class="w-20 h-20 mx-auto mb-6 bg-gradient-primary rounded-full flex items-center justify-center text-white text-3xl">
                         <i class="fas fa-share-alt"></i>
                     </div>
@@ -318,7 +335,7 @@ if (isset($_SESSION['user_id'])) {
                     </p>
                 </div>
 
-                <div class="service-card bg-white/5 backdrop-blur-glass border border-white/10 rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:shadow-xl hover:shadow-primary/20 cursor-pointer" data-service="presentation">
+                <div class="service-card bg-white/5 backdrop-blur-glass border border-white/10 rounded-3xl p-10 text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white/10 hover:shadow-xl hover:shadow-primary/20 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400/30" data-service="presentation" role="button" tabindex="0" aria-label="Layanan Desain Presentasi">
                     <div class="w-20 h-20 mx-auto mb-6 bg-gradient-primary rounded-full flex items-center justify-center text-white text-3xl">
                         <i class="fas fa-presentation-screen"></i>
                     </div>
@@ -350,10 +367,10 @@ if (isset($_SESSION['user_id'])) {
             
             <!-- Filter Buttons -->
             <div class="portfolio-filter flex justify-center gap-4 mb-12 flex-wrap">
-                <button class="filter-btn active" data-filter="all">Semua</button>
-                <button class="filter-btn" data-filter="video">Video</button>
-                <button class="filter-btn" data-filter="design">Desain</button>
-                <button class="filter-btn" data-filter="social">Sosmed</button>
+                <button class="filter-btn active" data-filter="all" aria-label="Tampilkan semua portfolio">Semua</button>
+                <button class="filter-btn" data-filter="video" aria-label="Filter portfolio kategori Video">Video</button>
+                <button class="filter-btn" data-filter="design" aria-label="Filter portfolio kategori Desain">Desain</button>
+                <button class="filter-btn" data-filter="social" aria-label="Filter portfolio kategori Sosial Media">Sosmed</button>
             </div>
 
             <!-- Portfolio Grid -->

@@ -88,13 +88,13 @@ $packageTypes = [
                 </div>
                 
                 <div class="flex items-center space-x-4">
-                    <a href="../../my-orders.php" class="text-gray-300 hover:text-white transition-colors">
+                    <a href="../../my-orders.php" class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/20 rounded">
                         <i class="fas fa-arrow-left mr-2"></i>Kembali ke Pesanan
                     </a>
-                    <a href="../../order-progress.php?id=<?php echo $order['id']; ?>" class="text-gray-300 hover:text-white transition-colors">
+                    <a href="../../order-progress.php?id=<?php echo $order['id']; ?>" class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/20 rounded">
                         <i class="fas fa-tasks mr-2"></i>Lihat Progress
                     </a>
-                    <a href="../auth/logout.php" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors">
+                    <a href="../auth/logout.php" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-400/30">
                         <i class="fas fa-sign-out-alt mr-2"></i>Logout
                     </a>
                 </div>
@@ -103,7 +103,7 @@ $packageTypes = [
     </nav>
 
     <!-- Main Content -->
-    <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto px-4 py-8 section-spacing">
         <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-amber-400 bg-clip-text text-transparent">
@@ -306,12 +306,12 @@ $packageTypes = [
                             <i class="fas fa-tasks"></i>Lihat Progress
                         </a>
                         
-                        <a href="../../my-orders.php" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <a href="../../my-orders.php" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-amber-400/20">
                             <i class="fas fa-arrow-left"></i>Kembali ke Daftar
                         </a>
                         
                         <?php if ($order['status'] == 'completed'): ?>
-                        <a href="../../index.php#feedback" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <a href="../../index.php#feedback" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-green-400/30">
                             <i class="fas fa-star"></i>Beri Testimoni
                         </a>
                         <?php endif; ?>

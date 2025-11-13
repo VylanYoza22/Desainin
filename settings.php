@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_notifications']
     </nav>
 
     <!-- Main Content -->
-    <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto px-4 py-8 section-spacing">
         <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-amber-400 bg-clip-text text-transparent">
@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_notifications']
                                required>
                     </div>
                     
-                    <button type="submit" name="change_password" class="w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                    <button type="submit" name="change_password" class="w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                         <i class="fas fa-key mr-2"></i>Ubah Password
                     </button>
                 </form>
@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_notifications']
                         </label>
                     </div>
                     
-                    <button type="submit" name="update_notifications" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                    <button type="submit" name="update_notifications" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400/30">
                         <i class="fas fa-save mr-2"></i>Simpan Pengaturan
                     </button>
                 </form>
@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_notifications']
                 </div>
                 
                 <div class="mt-6">
-                    <a href="edit-profile.php" class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg text-center block">
+                    <a href="edit-profile.php" class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg text-center block focus:outline-none focus:ring-2 focus:ring-green-400/30">
                         <i class="fas fa-edit mr-2"></i>Edit Profil
                     </a>
                 </div>
@@ -244,15 +244,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_notifications']
                 </h3>
                 
                 <div class="space-y-3">
-                    <a href="my-orders.php" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg text-center block">
+                    <a href="my-orders.php" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg text-center block focus:outline-none focus:ring-2 focus:ring-purple-400/30">
                         <i class="fas fa-list mr-2"></i>Lihat Pesanan Saya
                     </a>
                     
-                    <a href="order.php" class="w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg text-center block">
+                    <a href="order.php" class="w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg text-center block focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                         <i class="fas fa-plus mr-2"></i>Buat Pesanan Baru
                     </a>
                     
-                    <a href="index.php" class="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg text-center block">
+                    <a href="index.php" class="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg text-center block focus:outline-none focus:ring-2 focus:ring-amber-400/20">
                         <i class="fas fa-home mr-2"></i>Kembali ke Beranda
                     </a>
                 </div>

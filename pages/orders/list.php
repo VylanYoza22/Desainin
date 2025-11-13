@@ -80,7 +80,7 @@ function getServiceName($service) {
     </style>
 </head>
 <body class="min-h-screen p-4">
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-6xl mx-auto section-spacing">
         <!-- Header -->
         <div class="glass-effect rounded-2xl p-6 mb-8 shadow-2xl">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -91,10 +91,10 @@ function getServiceName($service) {
                     <p class="text-gray-300 text-sm lg:text-base">Kelola dan pantau semua pesanan Anda</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <a href="../../order.php" class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-4 lg:px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm lg:text-base">
+                    <a href="../../order.php" class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-4 lg:px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 text-center text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                         <i class="fas fa-plus mr-2"></i>Pesanan Baru
                     </a>
-                    <a href="../user/dashboard.php" class="bg-gray-600 hover:bg-gray-700 text-white px-4 lg:px-6 py-3 rounded-lg transition-all duration-300 text-center text-sm lg:text-base">
+                    <a href="../user/dashboard.php" class="bg-gray-600 hover:bg-gray-700 text-white px-4 lg:px-6 py-3 rounded-lg transition-all duration-300 text-center text-sm lg:text-base focus:outline-none focus:ring-2 focus:ring-amber-400/20">
                         <i class="fas fa-arrow-left mr-2"></i>Dashboard
                     </a>
                 </div>
@@ -170,22 +170,22 @@ function getServiceName($service) {
                             <!-- Action Buttons -->
                             <div class="flex flex-col sm:flex-row lg:flex-col gap-2 lg:w-48">
                                 <?php if ($order['status'] == 'pending'): ?>
-                                    <a href="../../edit-order.php?id=<?php echo $order['id']; ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center">
+                                    <a href="../../edit-order.php?id=<?php echo $order['id']; ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center focus:outline-none focus:ring-2 focus:ring-blue-400/30">
                                         <i class="fas fa-edit mr-1"></i>Edit Pesanan
                                     </a>
                                 <?php endif; ?>
                                 
-                                <a href="../../order-progress.php?id=<?php echo $order['id']; ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center">
+                                <a href="../../order-progress.php?id=<?php echo $order['id']; ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                                     <i class="fas fa-tasks mr-1"></i>Lihat Progress
                                 </a>
                                 
-                                <a href="detail.php?id=<?php echo $order['id']; ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center">
+                                <a href="detail.php?id=<?php echo $order['id']; ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center focus:outline-none focus:ring-2 focus:ring-amber-400/20">
                                     <i class="fas fa-eye mr-1"></i>Detail Lengkap
                                 </a>
                                 
                                 
                                 <?php if ($order['status'] == 'completed'): ?>
-                                    <a href="../../index.php#feedback" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center">
+                                    <a href="../../index.php#feedback" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                                         <i class="fas fa-star mr-1"></i>Beri Testimoni
                                     </a>
                                 <?php endif; ?>

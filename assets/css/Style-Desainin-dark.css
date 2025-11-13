@@ -265,3 +265,194 @@
         padding-top: 4rem;
     }
 }
+
+/* ================= GLOBAL UI ENHANCEMENTS ================= */
+
+/* Base Typography & Rendering */
+html, body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Improve base readability */
+body {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Responsive headings (clamp) */
+h1 { font-size: clamp(1.5rem, 3.5vw, 2.25rem); }
+h2 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+h3 { font-size: clamp(1.125rem, 2.5vw, 1.5rem); }
+
+/* Slightly increase contrast for secondary text utilities often used */
+.text-gray-300 { color: rgba(229, 231, 235, 0.82) !important; }
+.text-gray-400 { color: rgba(209, 213, 219, 0.82) !important; }
+
+/* Headings spacing tweaks */
+h1, h2, h3 { line-height: 1.2; }
+
+/* Links */
+a {
+    transition: color .2s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+/* Focus Ring (for non-Tailwind elements) */
+.focus-ring,
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+}
+
+/* Consistent tap targets for native form elements */
+button, input[type="button"], input[type="submit"], input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+  min-height: 44px;
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+    color: #111827;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 0.75rem;
+    transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(245, 158, 11, 0.35);
+}
+.btn-primary:active {
+    transform: translateY(0);
+    filter: brightness(0.95);
+}
+.btn-outline {
+    border: 1px solid rgba(255,255,255,.25);
+    color: #fff;
+    background: rgba(255,255,255,.04);
+    border-radius: 0.75rem;
+}
+.btn-outline:hover {
+    background: rgba(255,255,255,.08);
+    border-color: rgba(255,255,255,.35);
+}
+.btn-outline:active { filter: brightness(0.95); }
+
+/* Cards */
+.card,
+.glass-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1rem;
+    backdrop-filter: blur(12px);
+    transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.card *, .glass-card * { overflow-wrap: anywhere; word-break: break-word; }
+.glass-card:hover { 
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Improve nav hover and active states */
+.nav-item:hover { color: #fff; background-color: rgba(255,255,255,0.06); }
+.nav-item:hover i { color: #f59e0b; }
+
+/* Elevation helpers */
+.shadow-elevated { box-shadow: 0 14px 30px rgba(0,0,0,.35); }
+.shadow-elevated-lg { box-shadow: 0 24px 60px rgba(0,0,0,.45); }
+
+/* Section spacing */
+.section-spacing-sm { padding-top: 2rem; padding-bottom: 2rem; }
+.section-spacing { padding-top: 4rem; padding-bottom: 4rem; }
+.section-spacing-lg { padding-top: 6rem; padding-bottom: 6rem; }
+
+/* Headings */
+.heading-xl {
+    font-weight: 800;
+    letter-spacing: -.01em;
+    background: linear-gradient(90deg, #fff, rgba(255,255,255,.85));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.heading-sub {
+    color: rgba(255,255,255,.75);
+}
+
+/* Improve filter button focus */
+.filter-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(245,158,11,.35);
+}
+
+/* Nav items focus */
+.nav-item:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px rgba(245,158,11,.45);
+}
+
+/* Utility badges */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .375rem;
+    padding: .25rem .5rem;
+    border-radius: .5rem;
+    font-size: .75rem;
+}
+.badge-success { background: rgba(16,185,129,.15); color: #34d399; }
+.badge-info { background: rgba(59,130,246,.15); color: #93c5fd; }
+.badge-warn { background: rgba(245,158,11,.15); color: #fbbf24; }
+
+/* Accessibility: Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .particle { display: none !important; }
+}
+
+/* Mobile performance: tone down glass & shadows on small screens */
+@media (max-width: 640px) {
+  .glass-card, .card {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+  }
+}
+
+/* Extra small screens optimizations */
+@media (max-width: 480px) {
+  /* Headings & text */
+  .heading-xl { font-size: 1.75rem; line-height: 1.25; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+
+  /* Section spacing tighter */
+  .section-spacing-lg { padding-top: 3rem; padding-bottom: 3rem; }
+  .section-spacing { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+  .section-spacing-sm { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+
+  /* Buttons full width for accessibility */
+  .btn-primary, .btn-outline { width: 100%; display: inline-flex; justify-content: center; }
+
+  /* Cards tighter padding */
+  .card, .glass-card { padding: 1rem; }
+
+  /* Reduce heavy visuals */
+  .particles { opacity: 0.4; }
+  .backdrop-blur-glass { backdrop-filter: blur(8px); }
+}
+
+/* Reusable table scroll helper */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+.table-scroll table { width: 100%; border-collapse: collapse; }
+.table-scroll thead, .table-scroll tbody, .table-scroll th, .table-scroll td { white-space: nowrap; }

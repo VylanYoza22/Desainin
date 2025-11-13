@@ -1,5 +1,5 @@
     <!-- Footer -->
-    <footer class="bg-gray-900/80 backdrop-blur-md border-t border-gray-800 mt-16">
+    <footer class="bg-gray-900/80 backdrop-blur-md border-t border-gray-800 mt-16" role="contentinfo" aria-label="Footer">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Brand -->
@@ -14,10 +14,10 @@
                 <div>
                     <h4 class="font-semibold text-white mb-4">Quick Links</h4>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="<?php echo isset($rootPath) ? $rootPath : '../'; ?>index.php" class="text-gray-400 hover:text-amber-400 transition-colors">Beranda</a></li>
-                        <li><a href="<?php echo isset($rootPath) ? $rootPath : '../'; ?>order.php" class="text-gray-400 hover:text-amber-400 transition-colors">Buat Pesanan</a></li>
-                        <li><a href="<?php echo isset($rootPath) ? $rootPath : '../'; ?>my-orders.php" class="text-gray-400 hover:text-amber-400 transition-colors">Pesanan Saya</a></li>
-                        <li><a href="<?php echo isset($rootPath) ? $rootPath : '../'; ?>pages/user/profile.php" class="text-gray-400 hover:text-amber-400 transition-colors">Profil</a></li>
+                        <li><a href="<?php echo isset($rootPath) ? $rootPath : '../'; ?>index.php" class="text-gray-400 hover:text-amber-400 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30 rounded">Beranda</a></li>
+                        <li><a href="<?php echo isset($rootPath) ? $rootPath : '../'; ?>order.php" class="text-gray-400 hover:text-amber-400 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30 rounded">Buat Pesanan</a></li>
+                        <li><a href="<?php echo isset($rootPath) ? $rootPath : '../'; ?>my-orders.php" class="text-gray-400 hover:text-amber-400 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30 rounded">Pesanan Saya</a></li>
+                        <li><a href="<?php echo isset($rootPath) ? $rootPath : '../'; ?>pages/user/profile.php" class="text-gray-400 hover:text-amber-400 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30 rounded">Profil</a></li>
                     </ul>
                 </div>
                 

@@ -126,7 +126,14 @@ if ($check_table && $check_table->num_rows > 0) {
     </style>
 </head>
 <body class="min-h-screen p-4">
-    <div class="max-w-6xl mx-auto">
+    <!-- Animated Background -->
+    <div class="fixed inset-0 -z-20 bg-gradient-animated"></div>
+    <div class="particles fixed inset-0 -z-10 pointer-events-none" id="particles"></div>
+    
+    <!-- Navigation -->
+    <?php include '../../includes/navigation.php'; ?>
+
+    <div class="max-w-6xl mx-auto section-spacing">
         <!-- Header -->
         <div class="glass-effect rounded-2xl p-6 mb-8 shadow-2xl">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -147,10 +154,10 @@ if ($check_table && $check_table->num_rows > 0) {
                     </div>
                 </div>
                 <div class="flex space-x-3">
-                    <a href="../../index.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    <a href="../../index.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400/30">
                         <i class="fas fa-home mr-2"></i>Beranda
                     </a>
-                    <a href="../auth/logout.php" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                    <a href="../auth/logout.php" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-400/30">
                         <i class="fas fa-sign-out-alt mr-2"></i>Logout
                     </a>
                 </div>
@@ -257,7 +264,7 @@ if ($check_table && $check_table->num_rows > 0) {
                     </div>
 
                     <div class="mt-6 pt-6 border-t border-white/10">
-                        <a href="../../edit-profile.php" class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 inline-block">
+                        <a href="../../edit-profile.php" class="bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 inline-block focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                             <i class="fas fa-edit mr-2"></i>
                             Edit Profil
                         </a>
@@ -274,12 +281,12 @@ if ($check_table && $check_table->num_rows > 0) {
                     </h2>
                     
                     <div class="space-y-3">
-                        <a href="../../order.php" class="block w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-center">
+                        <a href="../../order.php" class="block w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-center focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                             <i class="fas fa-plus-circle mr-2"></i>
                             Pesan Desain Baru
                         </a>
 
-                        <a href="../../my-orders.php" class="block w-full bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-center">
+                        <a href="../../my-orders.php" class="block w-full bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white p-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-center focus:outline-none focus:ring-2 focus:ring-amber-400/20">
                             <i class="fas fa-shopping-bag mr-2"></i>
                             Pesanan Saya
                         </a>

@@ -100,6 +100,61 @@ $packageTypes = [
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/Style-Desainin-dark.css">
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .order-card {
+            animation: fadeInUp 0.6s ease-out;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .order-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(245, 158, 11, 0.15);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .stat-card {
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
+        }
+        .btn-action {
+            transition: all 0.3s;
+        }
+        .btn-action:hover {
+            transform: translateX(3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #fbbf24, #f59e0b);
+        }
+    </style>
 </head>
 
 <body class="bg-black text-white font-sans min-h-screen">
@@ -108,56 +163,34 @@ $packageTypes = [
     <div class="particles fixed inset-0 -z-10 pointer-events-none" id="particles"></div>
 
     <!-- Navigation -->
-    <nav class="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="index.php" class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">
-                        <i class="fas fa-palette mr-2"></i>Desainin
-                    </a>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <a href="index.php" class="text-gray-300 hover:text-white transition-colors">
-                        <i class="fas fa-home mr-2"></i>Beranda
-                    </a>
-                    <a href="order.php" class="text-gray-300 hover:text-white transition-colors">
-                        <i class="fas fa-plus mr-2"></i>Buat Pesanan
-                    </a>
-                    <a href="pages/auth/logout.php" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <?php include 'includes/navigation.php'; ?>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto px-4 py-8 section-spacing">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-amber-400 bg-clip-text text-transparent">
-                <i class="fas fa-list mr-3"></i>Pesanan Saya
+        <div class="text-center mb-10">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-amber-400 to-yellow-500 bg-clip-text text-transparent">
+                <i class="fas fa-list mr-4 animate-pulse"></i>Pesanan Saya
             </h1>
-            <p class="text-gray-400">Kelola dan pantau semua pesanan Anda</p>
+            <p class="text-gray-400 text-lg">Kelola dan pantau semua pesanan Anda dengan mudah</p>
         </div>
 
         <!-- Filters and Search -->
-        <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 mb-8">
+        <div class="glass-card rounded-3xl p-8 mb-10 shadow-2xl">
             <form method="GET" class="flex flex-col md:flex-row gap-4">
                 <!-- Search -->
                 <div class="flex-1">
                     <div class="relative">
                         <input type="text" name="search" value="<?php echo htmlspecialchars($search); ?>" 
                                placeholder="Cari berdasarkan judul atau deskripsi..." 
-                               class="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
-                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                               class="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-400 transition-all focus:transform focus:-translate-y-1">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-amber-400"></i>
                     </div>
                 </div>
                 
                 <!-- Status Filter -->
-                <div class="md:w-48">
-                    <select name="status" class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent" style="color: white;">
+                <div class="md:w-56">
+                    <select name="status" class="w-full px-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-400 transition-all" style="color: white;">
                         <option value="all" <?php echo $status_filter === 'all' ? 'selected' : ''; ?> style="color: #f59e0b; background: #1a1a2e;">Semua Status</option>
                         <option value="pending" <?php echo $status_filter === 'pending' ? 'selected' : ''; ?> style="color: #f59e0b; background: #1a1a2e;">Pending</option>
                         <option value="confirmed" <?php echo $status_filter === 'confirmed' ? 'selected' : ''; ?> style="color: #f59e0b; background: #1a1a2e;">Dikonfirmasi</option>
@@ -169,12 +202,12 @@ $packageTypes = [
                 </div>
                 
                 <!-- Filter Button -->
-                <button type="submit" class="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-colors">
+                <button type="submit" class="px-8 py-4 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                     <i class="fas fa-filter mr-2"></i>Filter
                 </button>
                 
                 <!-- Reset Button -->
-                <a href="my-orders.php" class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors text-center">
+                <a href="my-orders.php" class="px-8 py-4 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-xl font-bold transition-all text-center shadow-lg hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-amber-400/20">
                     <i class="fas fa-undo mr-2"></i>Reset
                 </a>
             </form>
@@ -182,9 +215,11 @@ $packageTypes = [
 
         <!-- Orders List -->
         <?php if (empty($orders)): ?>
-        <div class="text-center py-16">
-            <i class="fas fa-inbox text-6xl text-gray-600 mb-4"></i>
-            <h3 class="text-2xl font-semibold text-gray-400 mb-2">Tidak ada pesanan ditemukan</h3>
+        <div class="glass-card rounded-3xl text-center py-20 shadow-2xl">
+            <div class="animate-float">
+                <i class="fas fa-inbox text-8xl text-gray-600 mb-6"></i>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-400 mb-4">Tidak ada pesanan ditemukan</h3>
             <p class="text-gray-500 mb-6">
                 <?php if (!empty($search) || $status_filter !== 'all'): ?>
                     Coba ubah filter pencarian Anda atau <a href="my-orders.php" class="text-amber-400 hover:text-amber-300">reset filter</a>
@@ -192,29 +227,36 @@ $packageTypes = [
                     Mulai dengan membuat pesanan pertama Anda
                 <?php endif; ?>
             </p>
-            <a href="order.php" class="inline-block bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                <i class="fas fa-plus mr-2"></i>Buat Pesanan Baru
+            <a href="order.php" class="inline-flex items-center gap-3 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-10 py-4 rounded-xl font-bold transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl shadow-lg text-lg">
+                <i class="fas fa-plus text-xl"></i>
+                <span>Buat Pesanan Baru</span>
+                <i class="fas fa-arrow-right"></i>
             </a>
         </div>
         <?php else: ?>
         
-        <div class="space-y-6">
+        <div class="space-y-8">
             <?php foreach ($orders as $order): 
                 $statusInfo = getStatusInfo($order['status']);
             ?>
-            <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300">
+            <div class="order-card glass-card rounded-3xl p-8 shadow-xl">
                 <div class="flex flex-col lg:flex-row lg:items-center gap-6">
                     
                     <!-- Order Info -->
                     <div class="flex-1">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <h3 class="text-xl font-semibold text-white mb-2"><?php echo htmlspecialchars($order['title']); ?></h3>
-                                <div class="flex flex-wrap gap-2 mb-2">
-                                    <span class="px-3 py-1 bg-blue-600/20 text-blue-300 rounded-full text-sm">
+                        <div class="flex items-start justify-between mb-5">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-white mb-3 flex items-center gap-3">
+                                    <i class="fas fa-file-alt text-amber-400"></i>
+                                    <?php echo htmlspecialchars($order['title']); ?>
+                                </h3>
+                                <div class="flex flex-wrap gap-3 mb-3">
+                                    <span class="px-4 py-2 bg-blue-500/20 border border-blue-500/30 text-blue-300 rounded-xl text-sm font-semibold flex items-center gap-2">
+                                        <i class="fas fa-palette"></i>
                                         <?php echo $serviceTypes[$order['service_type']] ?? $order['service_type']; ?>
                                     </span>
-                                    <span class="px-3 py-1 bg-purple-600/20 text-purple-300 rounded-full text-sm">
+                                    <span class="px-4 py-2 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-xl text-sm font-semibold flex items-center gap-2">
+                                        <i class="fas fa-box"></i>
                                         <?php echo $packageTypes[$order['package_type']] ?? $order['package_type']; ?>
                                     </span>
                                 </div>
@@ -222,65 +264,84 @@ $packageTypes = [
                             
                             <!-- Status Badge -->
                             <div class="flex items-center gap-2">
-                                <div class="px-4 py-2 bg-<?php echo $statusInfo['color']; ?>-600/20 text-<?php echo $statusInfo['color']; ?>-300 rounded-lg text-sm font-medium flex items-center gap-2">
-                                    <i class="<?php echo $statusInfo['icon']; ?>"></i>
+                                <div class="px-5 py-3 bg-<?php echo $statusInfo['color']; ?>-500/20 border-2 border-<?php echo $statusInfo['color']; ?>-500/40 text-<?php echo $statusInfo['color']; ?>-300 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg">
+                                    <i class="<?php echo $statusInfo['icon']; ?> text-lg"></i>
                                     <?php echo $statusInfo['label']; ?>
                                 </div>
                             </div>
                         </div>
                         
-                        <p class="text-gray-300 mb-4 line-clamp-2"><?php echo htmlspecialchars($order['description']); ?></p>
+                        <p class="text-gray-300 mb-5 line-clamp-2 leading-relaxed"><?php echo htmlspecialchars($order['description']); ?></p>
                         
                         <!-- Order Details -->
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            <div>
-                                <span class="text-gray-400">Order ID:</span>
-                                <div class="font-mono text-amber-400">#<?php echo $order['id']; ?></div>
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                                <span class="text-gray-400 text-xs flex items-center gap-1 mb-1">
+                                    <i class="fas fa-hashtag"></i>
+                                    Order ID:
+                                </span>
+                                <div class="font-mono text-amber-400 font-bold text-lg">#<?php echo $order['id']; ?></div>
                             </div>
-                            <div>
-                                <span class="text-gray-400">Budget:</span>
-                                <div class="text-green-400 font-semibold">
-                                    <?php echo $order['budget'] ? 'Rp ' . number_format($order['budget'], 0, ',', '.') : 'Tidak ditentukan'; ?>
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                                <span class="text-gray-400 text-xs flex items-center gap-1 mb-1">
+                                    <i class="fas fa-money-bill"></i>
+                                    Budget:
+                                </span>
+                                <div class="text-green-400 font-bold text-lg">
+                                    <?php echo $order['budget'] ? 'Rp ' . number_format($order['budget'], 0, ',', '.') : '-'; ?>
                                 </div>
                             </div>
-                            <div>
-                                <span class="text-gray-400">Deadline:</span>
-                                <div><?php echo $order['deadline'] ? date('d M Y', strtotime($order['deadline'])) : 'Tidak ditentukan'; ?></div>
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                                <span class="text-gray-400 text-xs flex items-center gap-1 mb-1">
+                                    <i class="fas fa-calendar"></i>
+                                    Deadline:
+                                </span>
+                                <div class="text-white font-bold"><?php echo $order['deadline'] ? date('d M Y', strtotime($order['deadline'])) : '-'; ?></div>
                             </div>
-                            <div>
-                                <span class="text-gray-400">Progress:</span>
-                                <div class="text-<?php echo $statusInfo['color']; ?>-400 font-semibold"><?php echo $statusInfo['percentage']; ?>%</div>
+                            <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                                <span class="text-gray-400 text-xs flex items-center gap-1 mb-1">
+                                    <i class="fas fa-chart-line"></i>
+                                    Progress:
+                                </span>
+                                <div class="text-<?php echo $statusInfo['color']; ?>-400 font-bold text-lg"><?php echo $statusInfo['percentage']; ?>%</div>
                             </div>
                         </div>
                         
                         <?php if ($order['notes']): ?>
-                        <div class="mt-4 p-3 bg-white/5 rounded-lg">
-                            <span class="text-gray-400 text-sm">Catatan:</span>
-                            <p class="text-gray-300 text-sm mt-1"><?php echo htmlspecialchars($order['notes']); ?></p>
+                        <div class="mt-5 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                            <span class="text-amber-400 text-sm font-bold flex items-center gap-2 mb-2">
+                                <i class="fas fa-sticky-note"></i>
+                                Catatan:
+                            </span>
+                            <p class="text-amber-100 text-sm leading-relaxed"><?php echo htmlspecialchars($order['notes']); ?></p>
                         </div>
                         <?php endif; ?>
                     </div>
                     
                     <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row lg:flex-col gap-2 lg:w-48">
+                    <div class="flex flex-col sm:flex-row lg:flex-col gap-3 lg:w-52">
                         <?php if ($order['status'] == 'pending'): ?>
-                        <a href="edit-order.php?id=<?php echo $order['id']; ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center">
-                            <i class="fas fa-edit mr-1"></i>Edit Pesanan
+                        <a href="edit-order.php?id=<?php echo $order['id']; ?>" class="btn-action bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-5 py-3 rounded-xl text-sm font-semibold shadow-lg text-center flex items-center justify-center gap-2">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit Pesanan</span>
                         </a>
                         <?php endif; ?>
                         
-                        <a href="order-progress.php?id=<?php echo $order['id']; ?>" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center">
-                            <i class="fas fa-tasks mr-1"></i>Lihat Progress
+                        <a href="order-progress.php?id=<?php echo $order['id']; ?>" class="btn-action bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg text-center flex items-center justify-center gap-2">
+                            <i class="fas fa-tasks"></i>
+                            <span>Lihat Progress</span>
                         </a>
                         
-                        <a href="pages/orders/detail.php?id=<?php echo $order['id']; ?>" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center">
-                            <i class="fas fa-eye mr-1"></i>Detail Lengkap
+                        <a href="pages/orders/detail.php?id=<?php echo $order['id']; ?>" class="btn-action bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-5 py-3 rounded-xl text-sm font-semibold shadow-lg text-center flex items-center justify-center gap-2">
+                            <i class="fas fa-eye"></i>
+                            <span>Detail Lengkap</span>
                         </a>
                         
                         
                         <?php if ($order['status'] == 'completed'): ?>
-                        <a href="index.php#feedback" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors text-center">
-                            <i class="fas fa-star mr-1"></i>Beri Testimoni
+                        <a href="index.php#feedback" class="btn-action bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-5 py-3 rounded-xl text-sm font-semibold shadow-lg text-center flex items-center justify-center gap-2">
+                            <i class="fas fa-star"></i>
+                            <span>Beri Testimoni</span>
                         </a>
                         <?php endif; ?>
                     </div>
@@ -336,24 +397,28 @@ $packageTypes = [
             $stats_stmt->close();
             ?>
             
-            <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-4 text-center">
-                <div class="text-2xl font-bold text-white"><?php echo $stats['total']; ?></div>
-                <div class="text-sm text-gray-400">Total Pesanan</div>
+            <div class="stat-card glass-card rounded-2xl p-6 text-center shadow-lg">
+                <i class="fas fa-shopping-cart text-3xl text-amber-400 mb-3"></i>
+                <div class="text-3xl font-bold text-white mb-2"><?php echo $stats['total']; ?></div>
+                <div class="text-sm text-gray-400 font-semibold">Total Pesanan</div>
             </div>
             
-            <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-4 text-center">
-                <div class="text-2xl font-bold text-yellow-400"><?php echo $stats['pending']; ?></div>
-                <div class="text-sm text-gray-400">Pending</div>
+            <div class="stat-card glass-card rounded-2xl p-6 text-center shadow-lg">
+                <i class="fas fa-clock text-3xl text-yellow-400 mb-3"></i>
+                <div class="text-3xl font-bold text-yellow-400 mb-2"><?php echo $stats['pending']; ?></div>
+                <div class="text-sm text-gray-400 font-semibold">Pending</div>
             </div>
             
-            <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-4 text-center">
-                <div class="text-2xl font-bold text-blue-400"><?php echo $stats['in_progress']; ?></div>
-                <div class="text-sm text-gray-400">Sedang Dikerjakan</div>
+            <div class="stat-card glass-card rounded-2xl p-6 text-center shadow-lg">
+                <i class="fas fa-spinner text-3xl text-blue-400 mb-3"></i>
+                <div class="text-3xl font-bold text-blue-400 mb-2"><?php echo $stats['in_progress']; ?></div>
+                <div class="text-sm text-gray-400 font-semibold">Sedang Dikerjakan</div>
             </div>
             
-            <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-4 text-center">
-                <div class="text-2xl font-bold text-green-400"><?php echo $stats['completed']; ?></div>
-                <div class="text-sm text-gray-400">Selesai</div>
+            <div class="stat-card glass-card rounded-2xl p-6 text-center shadow-lg">
+                <i class="fas fa-check-circle text-3xl text-green-400 mb-3"></i>
+                <div class="text-3xl font-bold text-green-400 mb-2"><?php echo $stats['completed']; ?></div>
+                <div class="text-sm text-gray-400 font-semibold">Selesai</div>
             </div>
         </div>
     </div>

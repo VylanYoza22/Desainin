@@ -1,5 +1,17 @@
 <?php
 session_start();
+require_once '../../config/database.php';
+
+// If logged in, mark user offline
+if (isset($_SESSION['user_id'])) {
+    try {
+        $uid = (int)$_SESSION['user_id'];
+        $stmt = $conn->prepare("UPDATE users SET is_online = 0 WHERE id = ?");
+        $stmt->bind_param("i", $uid);
+        $stmt->execute();
+        $stmt->close();
+    } catch (Exception $e) { /* ignore tracking errors */ }
+}
 
 // Hapus semua session variables
 $_SESSION = array();

@@ -19,3 +19,12 @@
 [2025-09-24 14:39:51] [Warning] Undefined array key "order_reference" in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 301
 [2025-09-24 14:39:51] [Deprecated] htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 301
 [2025-09-24 14:39:51] Uncaught Exception: Call to undefined function formatTimeAgo() in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 369
+[2025-09-25 09:03:58] [Warning] Undefined array key "order_reference" in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 301
+[2025-09-25 09:03:58] [Deprecated] htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 301
+[2025-09-25 09:03:58] Uncaught Exception: Call to undefined function formatTimeAgo() in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 369
+[2025-09-25 09:06:15] [Warning] Undefined array key "order_reference" in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 301
+[2025-09-25 09:06:15] [Deprecated] htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 301
+[2025-09-25 09:06:15] Uncaught Exception: Call to undefined function formatTimeAgo() in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 369
+[2025-10-03 14:34:56] [Warning] Undefined array key "order_reference" in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 301
+[2025-10-03 14:34:56] [Deprecated] htmlspecialchars(): Passing null to parameter #1 ($string) of type string is deprecated in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 301
+[2025-10-03 14:34:56] Uncaught Exception: Call to undefined function formatTimeAgo() in C:\xampp\htdocs\PKK2\pages\user\show-profile.php on line 369

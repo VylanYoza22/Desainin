@@ -130,13 +130,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 
                 <div class="flex items-center space-x-4">
-                    <a href="index.php" class="text-gray-300 hover:text-white transition-colors">
+                    <a href="index.php" class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/20 rounded">
                         <i class="fas fa-home mr-2"></i>Beranda
                     </a>
-                    <a href="my-orders.php" class="text-gray-300 hover:text-white transition-colors">
+                    <a href="my-orders.php" class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/20 rounded">
                         <i class="fas fa-list mr-2"></i>Pesanan Saya
                     </a>
-                    <a href="pages/auth/logout.php" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors">
+                    <a href="pages/auth/logout.php" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-400/30">
                         <i class="fas fa-sign-out-alt mr-2"></i>Logout
                     </a>
                 </div>
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </nav>
 
     <!-- Main Content -->
-    <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto px-4 py-8 section-spacing">
         <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-amber-400 bg-clip-text text-transparent">
@@ -230,10 +230,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-6">
-                    <button type="submit" class="flex-1 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                         <i class="fas fa-save mr-2"></i>Simpan Perubahan
                     </button>
-                    <button type="button" onclick="window.location.href='http://localhost/PKK2/index.php'" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors text-center">
+                    <button type="button" onclick="window.location.href='http://localhost/PKK2/index.php'" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors text-center focus:outline-none focus:ring-2 focus:ring-amber-400/20">
                         <i class="fas fa-times mr-2"></i>Batal
                     </button>
                 </div>

@@ -12,6 +12,32 @@
  */
 
 // =====================================================
+// PRICING STRUCTURE
+// =====================================================
+$pricing = [
+    'video_editing' => [
+        'basic' => 50000,
+        'standard' => 100000,
+        'premium' => 200000
+    ],
+    'graphic_design' => [
+        'basic' => 35000,
+        'standard' => 75000,
+        'premium' => 150000
+    ],
+    'social_media' => [
+        'basic' => 40000,
+        'standard' => 80000,
+        'premium' => 160000
+    ],
+    'presentation' => [
+        'basic' => 45000,
+        'standard' => 90000,
+        'premium' => 180000
+    ]
+];
+
+// =====================================================
 // INITIALIZATION & SECURITY
 // =====================================================
 session_start();
@@ -31,7 +57,7 @@ $error = '';
 // =====================================================
 // USER DATA RETRIEVAL
 // =====================================================
-$stmt = $conn->prepare("SELECT id, username, full_name, email FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, username, full_name, email, phone FROM users WHERE id = ?");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -52,16 +78,80 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $budget = $_POST['budget'];
     $deadline = $_POST['deadline'];
     $notes = trim($_POST['notes']);
-    $whatsapp = trim($_POST['whatsapp']);
+    // Use phone number from user profile
+    $whatsapp = trim($user['phone'] ?? '');
+    $formattedPhone = '';
+    $design_reference = null;
     
     // =====================================================
     // INPUT VALIDATION
     // =====================================================
-    if (empty($title) || empty($description) || empty($whatsapp)) {
+    if (empty($title) || empty($description)) {
         $error = "Semua field wajib harus diisi.";
-    } else if (!preg_match('/^[0-9]{10,13}$/', $whatsapp)) {
-        $error = "Format nomor WhatsApp tidak valid. Gunakan 10-13 digit angka.";
+    } else if (empty($whatsapp)) {
+        $error = "Nomor WhatsApp pada profil Anda belum diisi. Silakan lengkapi nomor di profil terlebih dahulu.";
     } else {
+        // Normalize number for WhatsApp and validate basic length
+        $formattedPhone = validateWhatsAppNumber($whatsapp);
+        $digits = preg_replace('/[^0-9]/', '', $formattedPhone);
+        if (strlen($digits) < 10 || strlen($digits) > 15) {
+            $error = "Format nomor WhatsApp pada profil tidak valid. Perbarui nomor di profil Anda.";
+        }
+        
+        // Validate budget matches pricing structure
+        if (isset($pricing[$service_type][$package_type])) {
+            $expected_price = $pricing[$service_type][$package_type];
+            if ($budget != $expected_price) {
+                $error = "Budget tidak sesuai dengan harga paket yang dipilih. Harga seharusnya Rp " . number_format($expected_price, 0, ',', '.');
+            }
+        } else {
+            $error = "Kombinasi layanan dan paket tidak valid.";
+        }
+    }
+    
+    // =====================================================
+    // FILE UPLOAD HANDLING
+    // =====================================================
+    if (empty($error) && isset($_FILES['design_reference']) && $_FILES['design_reference']['error'] === UPLOAD_ERR_OK) {
+        $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        $max_size = 5 * 1024 * 1024; // 5MB
+        
+        $file_type = $_FILES['design_reference']['type'];
+        $file_size = $_FILES['design_reference']['size'];
+        $file_tmp = $_FILES['design_reference']['tmp_name'];
+        $file_name = $_FILES['design_reference']['name'];
+        
+        // Validate file type
+        if (!in_array($file_type, $allowed_types)) {
+            $error = "Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP.";
+        }
+        // Validate file size
+        else if ($file_size > $max_size) {
+            $error = "Ukuran file terlalu besar. Maksimal 5MB.";
+        }
+        // Upload file
+        else {
+            // Create uploads directory if not exists
+            $upload_dir = '../../uploads/design_references/';
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+            
+            // Generate unique filename
+            $file_extension = pathinfo($file_name, PATHINFO_EXTENSION);
+            $unique_filename = 'design_' . time() . '_' . uniqid() . '.' . $file_extension;
+            $upload_path = $upload_dir . $unique_filename;
+            
+            // Move uploaded file
+            if (move_uploaded_file($file_tmp, $upload_path)) {
+                $design_reference = 'uploads/design_references/' . $unique_filename;
+            } else {
+                $error = "Gagal mengupload file. Silakan coba lagi.";
+            }
+        }
+    }
+
+    if (empty($error)) {
         
         // =====================================================
         // DATABASE SCHEMA VALIDATION
@@ -82,6 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 budget DECIMAL(10,2) NOT NULL,
                 deadline DATE,
                 notes TEXT,
+                design_reference VARCHAR(255),
                 whatsapp_number VARCHAR(15),
                 status ENUM('pending', 'confirmed', 'payment_pending', 'payment_confirmed', 'in_progress', 'review', 'final_review', 'completed', 'cancelled') DEFAULT 'pending',
                 progress_percentage INT DEFAULT 10,
@@ -99,7 +190,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $columns_to_check = [
                 'whatsapp_number' => "ALTER TABLE orders ADD COLUMN whatsapp_number VARCHAR(15) AFTER notes",
                 'progress_percentage' => "ALTER TABLE orders ADD COLUMN progress_percentage INT DEFAULT 10 AFTER status",
-                'status_description' => "ALTER TABLE orders ADD COLUMN status_description VARCHAR(255) DEFAULT 'Pesanan sedang diproses' AFTER progress_percentage"
+                'status_description' => "ALTER TABLE orders ADD COLUMN status_description VARCHAR(255) DEFAULT 'Pesanan sedang diproses' AFTER progress_percentage",
+                'design_reference' => "ALTER TABLE orders ADD COLUMN design_reference VARCHAR(255) AFTER notes"
             ];
             
             foreach ($columns_to_check as $column => $alter_sql) {
@@ -114,8 +206,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // ORDER INSERTION
         // =====================================================
         if (empty($error)) {
-            $stmt = $conn->prepare("INSERT INTO orders (user_id, service_type, package_type, title, description, budget, deadline, notes, whatsapp_number, status, progress_percentage, status_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 10, 'Pesanan baru diterima')");
-            $stmt->bind_param("issssdsss", $user_id, $service_type, $package_type, $title, $description, $budget, $deadline, $notes, $whatsapp);
+            $stmt = $conn->prepare("INSERT INTO orders (user_id, service_type, package_type, title, description, budget, deadline, notes, design_reference, whatsapp_number, status, progress_percentage, status_description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 10, 'Pesanan baru diterima')");
+            $stmt->bind_param("issssdssss", $user_id, $service_type, $package_type, $title, $description, $budget, $deadline, $notes, $design_reference, $formattedPhone);
             
             if ($stmt->execute()) {
                 $order_id = $conn->insert_id;
@@ -130,7 +222,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         'order_id' => $order_id,
                         'nama' => $user['full_name'],
                         'email' => $user['email'],
-                        'whatsapp' => $whatsapp,
+                        'whatsapp' => $formattedPhone,
                         'service_type' => $service_type,
                         'package_type' => $package_type,
                         'title' => $title,
@@ -150,7 +242,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     );
                     
                     // Send confirmation to customer
-                    $customerPhone = validateWhatsAppNumber($whatsapp);
+                    $customerPhone = $formattedPhone;
                     $confirmResult = sendOrderConfirmationToCustomer($customerPhone, $orderData);
                     logWhatsAppActivity(
                         $customerPhone, 
@@ -195,31 +287,271 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
          CUSTOM STYLES
          ===================================================== -->
     <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
         .form-section {
             margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease-out;
         }
         
         .input-group {
             margin-bottom: 1.5rem;
+            position: relative;
         }
         
         .label-required::after {
             content: " *";
             color: #ef4444;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Modern Input Styles */
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="file"],
+        select,
+        textarea {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        input:focus,
+        select:focus,
+        textarea:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.15),
+                        0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        
+        /* Select Styling */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f59e0b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 3rem;
         }
         
         select option {
             padding: 0.75rem;
+            background: #1a1a2e;
         }
         
+        /* Button Styles */
         .btn-primary {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3),
+                        0 0 30px rgba(245, 158, 11, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
         }
         
         .btn-primary:hover {
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 12px 35px rgba(245, 158, 11, 0.5),
+                        0 0 50px rgba(245, 158, 11, 0.2);
+            transform: translateY(-3px) scale(1.02);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+        
+        /* Glass Card Enhancement */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(245, 158, 11, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                        0 0 30px rgba(245, 158, 11, 0.1);
+        }
+        
+        /* Section Headers */
+        .section-header {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1.25rem;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.05));
+            border-radius: 1rem;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .section-header i {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Pricing Card Styles */
+        .pricing-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .pricing-card:hover::before {
+            opacity: 1;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(245, 158, 11, 0.5);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
+        }
+        
+        /* Breakdown Card */
+        .breakdown-card {
+            animation: fadeInUp 0.5s ease-out;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.05));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.15);
+        }
+        
+        /* File Upload Style */
+        input[type="file"]::file-selector-button {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        input[type="file"]::file-selector-button:hover {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.2));
             transform: translateY(-2px);
+        }
+        
+        /* Image Preview */
+        #image-preview img {
+            transition: all 0.3s;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        #image-preview img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #fbbf24, #f59e0b);
+        }
+        
+        /* Alert Messages */
+        .alert-success, .alert-error {
+            animation: slideInDown 0.5s ease-out;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Loading State */
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Success Glow */
+        .success-glow {
+            animation: successPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes successPulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+            }
         }
     </style>
 </head>
@@ -274,31 +606,88 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
 
         <!-- =====================================================
+             PRICING TABLE
+             ===================================================== -->
+        <div class="glass-card rounded-3xl p-8 shadow-2xl mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="section-header text-2xl font-bold text-white">
+                    <i class="fas fa-tags text-amber-400"></i>
+                    <span>Daftar Harga Paket</span>
+                </h2>
+                <button onclick="togglePricing()" 
+                        class="text-amber-400 hover:text-amber-300 text-sm flex items-center gap-2 transition-all hover:gap-3 bg-amber-500/10 hover:bg-amber-500/20 px-4 py-2 rounded-xl border border-amber-500/20">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="toggle-text">Lihat Detail</span>
+                </button>
+            </div>
+            
+            <div id="pricing-detail" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <?php foreach ($pricing as $service => $packages): ?>
+                        <div class="pricing-card bg-white/5 border border-white/10 rounded-2xl p-5 shadow-lg">
+                            <h3 class="font-semibold text-white mb-3 flex items-center gap-2">
+                                <?php
+                                $icons = [
+                                    'video_editing' => '🎬',
+                                    'graphic_design' => '🎨',
+                                    'social_media' => '📱',
+                                    'presentation' => '📊'
+                                ];
+                                echo $icons[$service] . ' ';
+                                echo ucfirst(str_replace('_', ' ', $service));
+                                ?>
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <?php foreach ($packages as $package => $price): ?>
+                                    <div class="flex justify-between items-center text-gray-300 hover:text-white transition-colors">
+                                        <span class="capitalize"><?php echo $package; ?></span>
+                                        <span class="font-semibold text-amber-400">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="mt-6 text-center">
+                    <div class="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 text-blue-300 px-4 py-2 rounded-full text-sm">
+                        <i class="fas fa-lightbulb animate-pulse"></i>
+                        <span>Harga akan otomatis terisi sesuai paket yang Anda pilih di form</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =====================================================
              ALERT MESSAGES
              ===================================================== -->
         <?php if ($success): ?>
-            <div class="bg-green-600/20 border border-green-600/50 text-green-400 px-6 py-4 rounded-xl mb-6 backdrop-blur-sm">
+            <div class="alert-success bg-green-600/20 border border-green-600/50 text-green-400 px-6 py-5 rounded-2xl mb-8 backdrop-blur-sm success-glow shadow-lg">
                 <div class="flex items-center">
-                    <i class="fas fa-check-circle text-xl mr-3"></i>
-                    <div class="flex-1">
-                        <h4 class="font-semibold">Pesanan Berhasil Dibuat!</h4>
+                    <div class="flex-shrink-0 w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check-circle text-2xl"></i>
+                    </div>
+                    <div class="flex-1 ml-4">
+                        <h4 class="font-bold text-lg">Pesanan Berhasil Dibuat!</h4>
                         <p class="text-sm text-green-300 mt-1"><?php echo $success; ?></p>
                     </div>
                 </div>
-                <div class="mt-3 pt-3 border-t border-green-600/30">
-                    <a href="../../my-orders.php" class="inline-flex items-center text-green-300 hover:text-green-200 underline transition-colors">
-                        <i class="fas fa-arrow-right mr-2"></i>Lihat pesanan saya
+                <div class="mt-4 pt-4 border-t border-green-600/30">
+                    <a href="../../my-orders.php" class="inline-flex items-center gap-2 bg-green-600/30 hover:bg-green-600/40 text-green-200 px-5 py-2.5 rounded-xl transition-all hover:gap-3 font-semibold">
+                        <span>Lihat pesanan saya</span>
+                        <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
             </div>
         <?php endif; ?>
 
         <?php if ($error): ?>
-            <div class="bg-red-600/20 border border-red-600/50 text-red-400 px-6 py-4 rounded-xl mb-6 backdrop-blur-sm">
+            <div class="alert-error bg-red-600/20 border border-red-600/50 text-red-400 px-6 py-5 rounded-2xl mb-8 backdrop-blur-sm shadow-lg">
                 <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle text-xl mr-3"></i>
-                    <div>
-                        <h4 class="font-semibold">Terjadi Kesalahan</h4>
+                    <div class="flex-shrink-0 w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h4 class="font-bold text-lg">Terjadi Kesalahan</h4>
                         <p class="text-sm text-red-300 mt-1"><?php echo $error; ?></p>
                     </div>
                 </div>
@@ -308,13 +697,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- =====================================================
              ORDER FORM
              ===================================================== -->
-        <div class="bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl p-8 shadow-2xl">
-            <form method="POST" class="space-y-8">
+        <div class="glass-card rounded-3xl p-8 md:p-10 shadow-2xl">
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
                 
                 <!-- Service & Package Selection Section -->
                 <div class="form-section">
-                    <h3 class="text-xl font-semibold mb-4 text-amber-400 flex items-center">
-                        <i class="fas fa-cogs mr-2"></i>Pilih Layanan & Paket
+                    <h3 class="section-header text-xl font-semibold mb-6">
+                        <i class="fas fa-cogs text-amber-400"></i>
+                        <span>Pilih Layanan & Paket</span>
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Service Type -->
@@ -352,8 +742,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <!-- Project Details Section -->
                 <div class="form-section">
-                    <h3 class="text-xl font-semibold mb-4 text-amber-400 flex items-center">
-                        <i class="fas fa-project-diagram mr-2"></i>Detail Project
+                    <h3 class="section-header text-xl font-semibold mb-6">
+                        <i class="fas fa-project-diagram text-amber-400"></i>
+                        <span>Detail Project</span>
                     </h3>
                     
                     <!-- Project Title -->
@@ -379,8 +770,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <!-- Budget & Timeline Section -->
                 <div class="form-section">
-                    <h3 class="text-xl font-semibold mb-4 text-amber-400 flex items-center">
-                        <i class="fas fa-calculator mr-2"></i>Budget & Timeline
+                    <h3 class="section-header text-xl font-semibold mb-6">
+                        <i class="fas fa-calculator text-amber-400"></i>
+                        <span>Budget & Timeline</span>
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Budget -->
@@ -388,9 +780,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <label for="budget" class="block text-sm font-medium text-gray-300 mb-2">
                                 <i class="fas fa-money-bill mr-2"></i>Budget (Rp)
                             </label>
-                            <input type="number" name="budget" id="budget" min="0" step="1000" 
-                                   class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all duration-300" 
-                                   placeholder="50000">
+                            <input type="number" name="budget" id="budget" min="0" step="1000" readonly
+                                   class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all duration-300 cursor-not-allowed" 
+                                   placeholder="Pilih layanan & paket">
+                            <p class="text-xs text-gray-400 mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Harga otomatis sesuai paket yang dipilih
+                            </p>
                         </div>
 
                         <!-- Deadline -->
@@ -402,33 +798,91 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                    class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all duration-300">
                         </div>
                     </div>
+                    
+                    <!-- Price Breakdown -->
+                    <div id="price-breakdown" class="breakdown-card mt-6 rounded-2xl p-6 hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                                <i class="fas fa-receipt"></i>
+                                <span>Rincian Harga</span>
+                            </h4>
+                            <span class="text-xs bg-amber-500/30 text-amber-300 px-3 py-1.5 rounded-full font-semibold flex items-center gap-2">
+                                <i class="fas fa-robot"></i>
+                                Auto-calculated
+                            </span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between text-gray-300">
+                                <span id="selected-service">-</span>
+                                <span id="service-price">-</span>
+                            </div>
+                            <div class="flex justify-between text-gray-300">
+                                <span id="selected-package">-</span>
+                                <span id="package-indicator">-</span>
+                            </div>
+                            <div class="border-t border-amber-500/30 my-2 pt-2"></div>
+                            <div class="flex justify-between text-white font-bold text-lg">
+                                <span>Total Budget</span>
+                                <span id="total-price" class="text-amber-400">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Contact Information Section -->
+                <!-- Contact Information Section (uses profile phone) -->
                 <div class="form-section">
-                    <h3 class="text-xl font-semibold mb-4 text-amber-400 flex items-center">
-                        <i class="fas fa-phone mr-2"></i>Informasi Kontak
+                    <h3 class="section-header text-xl font-semibold mb-6">
+                        <i class="fas fa-phone text-amber-400"></i>
+                        <span>Informasi Kontak</span>
+                    </h3>
+                    <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                        <p class="text-sm text-gray-300">
+                            <i class="fab fa-whatsapp mr-2"></i>
+                            Nomor WhatsApp yang digunakan berasal dari profil Anda:
+                            <span class="font-semibold text-white">
+                                <?php echo $user['phone'] ? htmlspecialchars($user['phone']) : 'Belum diisi'; ?>
+                            </span>
+                        </p>
+                        <p class="text-xs text-gray-400 mt-2">
+                            Untuk mengubah nomor, silakan perbarui di <a href="../../edit-profile.php" class="text-amber-400 hover:text-amber-300 underline">Edit Profil</a>.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Design Reference Section -->
+                <div class="form-section">
+                    <h3 class="section-header text-xl font-semibold mb-6">
+                        <i class="fas fa-image text-amber-400"></i>
+                        <span>Contoh Desain Referensi</span>
                     </h3>
                     
-                    <!-- WhatsApp Number -->
                     <div class="input-group">
-                        <label for="whatsapp" class="block text-sm font-medium text-gray-300 mb-2 label-required">
-                            <i class="fab fa-whatsapp mr-2"></i>Nomor WhatsApp
+                        <label for="design_reference" class="block text-sm font-medium text-gray-300 mb-2">
+                            <i class="fas fa-upload mr-2"></i>Upload Foto Contoh Desain (Opsional)
                         </label>
-                        <input type="tel" name="whatsapp" id="whatsapp" required pattern="[0-9]{10,13}" 
-                               class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all duration-300" 
-                               placeholder="081234567890">
-                        <p class="text-xs text-gray-400 mt-2 flex items-center">
+                        <div class="relative">
+                            <input type="file" name="design_reference" id="design_reference" 
+                                   accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                   class="w-full p-4 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-500/20 file:text-amber-400 file:cursor-pointer hover:file:bg-amber-500/30" 
+                                   onchange="previewImage(this)">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">
                             <i class="fas fa-info-circle mr-1"></i>
-                            Format: 10-13 digit angka tanpa spasi atau tanda hubung
+                            Format: JPG, PNG, GIF, WebP | Maksimal: 5MB
                         </p>
+                        <!-- Image Preview -->
+                        <div id="image-preview" class="mt-4 hidden">
+                            <p class="text-sm text-gray-300 mb-2">Preview:</p>
+                            <img id="preview-img" src="" alt="Preview" class="max-w-full h-auto rounded-xl border border-white/20 max-h-64 object-contain">
+                        </div>
                     </div>
                 </div>
 
                 <!-- Additional Notes Section -->
                 <div class="form-section">
-                    <h3 class="text-xl font-semibold mb-4 text-amber-400 flex items-center">
-                        <i class="fas fa-sticky-note mr-2"></i>Catatan Tambahan
+                    <h3 class="section-header text-xl font-semibold mb-6">
+                        <i class="fas fa-sticky-note text-amber-400"></i>
+                        <span>Catatan Tambahan</span>
                     </h3>
                     
                     <div class="input-group">
@@ -445,17 +899,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="form-section">
                     <div class="flex justify-center pt-6">
                         <button type="submit" 
-                                class="btn-primary bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-500 hover:via-yellow-600 hover:to-amber-700 text-black font-bold py-4 px-12 rounded-full transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/30 flex items-center gap-3 border border-amber-300/50 text-lg">
+                                class="btn-primary bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-600 hover:from-amber-500 hover:via-yellow-600 hover:to-amber-700 text-black font-bold py-5 px-16 rounded-full transition-all duration-300 flex items-center gap-3 border border-amber-300/50 text-lg shadow-2xl">
                             <i class="fas fa-paper-plane text-xl"></i>
-                            Buat Pesanan Sekarang
+                            <span>Buat Pesanan Sekarang</span>
+                            <i class="fas fa-arrow-right text-xl"></i>
                         </button>
                     </div>
                     
-                    <div class="text-center mt-4">
-                        <p class="text-sm text-gray-400">
-                            <i class="fas fa-shield-alt mr-1"></i>
-                            Pesanan Anda akan diproses dalam 1x24 jam dan Anda akan mendapat notifikasi WhatsApp
-                        </p>
+                    <div class="text-center mt-6">
+                        <div class="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 text-green-300 px-6 py-3 rounded-full text-sm">
+                            <i class="fas fa-shield-alt text-green-400"></i>
+                            <span>Pesanan Anda akan diproses dalam 1x24 jam dan Anda akan mendapat notifikasi WhatsApp</span>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -487,6 +942,104 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     <!-- Form Enhancement Script -->
     <script>
+        // Pricing data from PHP
+        const pricing = <?php echo json_encode($pricing); ?>;
+        
+        // Service and package name mappings
+        const serviceNames = {
+            'video_editing': '🎬 Video Editing',
+            'graphic_design': '🎨 Graphic Design',
+            'social_media': '📱 Social Media Content',
+            'presentation': '📊 Presentation Design'
+        };
+        
+        const packageNames = {
+            'basic': '💼 Paket Basic',
+            'standard': '⭐ Paket Standard',
+            'premium': '👑 Paket Premium'
+        };
+        
+        // Update budget based on selected service and package
+        function updateBudget() {
+            const serviceType = document.getElementById('service_type').value;
+            const packageType = document.getElementById('package_type').value;
+            const budgetInput = document.getElementById('budget');
+            const breakdown = document.getElementById('price-breakdown');
+            
+            if (serviceType && packageType && pricing[serviceType] && pricing[serviceType][packageType]) {
+                const price = pricing[serviceType][packageType];
+                budgetInput.value = price;
+                
+                // Update breakdown display
+                document.getElementById('selected-service').textContent = serviceNames[serviceType];
+                document.getElementById('service-price').textContent = 'Rp ' + price.toLocaleString('id-ID');
+                document.getElementById('selected-package').textContent = packageNames[packageType];
+                document.getElementById('package-indicator').textContent = '✓ Terpilih';
+                document.getElementById('total-price').textContent = 'Rp ' + price.toLocaleString('id-ID');
+                
+                // Show breakdown with animation
+                breakdown.classList.remove('hidden');
+                breakdown.classList.add('animate-fade-in');
+            } else {
+                budgetInput.value = '';
+                budgetInput.placeholder = 'Pilih layanan & paket';
+                breakdown.classList.add('hidden');
+            }
+        }
+        
+        // Add event listeners
+        document.getElementById('service_type').addEventListener('change', updateBudget);
+        document.getElementById('package_type').addEventListener('change', updateBudget);
+        
+        // Toggle pricing detail function
+        function togglePricing() {
+            const detail = document.getElementById('pricing-detail');
+            const toggleText = document.getElementById('toggle-text');
+            
+            if (detail.classList.contains('hidden')) {
+                detail.classList.remove('hidden');
+                setTimeout(() => {
+                    detail.style.opacity = '1';
+                    detail.style.transform = 'translateY(0)';
+                }, 10);
+                toggleText.textContent = 'Sembunyikan Detail';
+            } else {
+                detail.style.opacity = '0';
+                detail.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    detail.classList.add('hidden');
+                }, 300);
+                toggleText.textContent = 'Lihat Detail';
+            }
+        }
+        
+        // Initialize pricing detail styles
+        document.addEventListener('DOMContentLoaded', function() {
+            const detail = document.getElementById('pricing-detail');
+            detail.style.transition = 'all 0.3s ease-out';
+            detail.style.opacity = '0';
+            detail.style.transform = 'translateY(-10px)';
+        });
+        
+        // Image preview function
+        function previewImage(input) {
+            const preview = document.getElementById('image-preview');
+            const previewImg = document.getElementById('preview-img');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    preview.classList.remove('hidden');
+                };
+                
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.classList.add('hidden');
+            }
+        }
+        
         // Auto-resize textarea
         document.querySelectorAll('textarea').forEach(textarea => {
             textarea.addEventListener('input', function() {
@@ -495,14 +1048,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             });
         });
         
-        // Phone number formatting
-        document.getElementById('whatsapp').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 13) {
-                value = value.slice(0, 13);
-            }
-            e.target.value = value;
-        });
+        // Nomor WhatsApp mengikuti profil. Tidak ada input nomor pada form ini.
         
         // Form validation feedback
         document.querySelector('form').addEventListener('submit', function(e) {

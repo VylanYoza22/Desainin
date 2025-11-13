@@ -31,7 +31,7 @@ if (isset($_SESSION['user_id'])) {
 ?>
 
 <!-- Navigation -->
-<nav class="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
+<nav class="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50" role="navigation" aria-label="Primary">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             <!-- Brand -->
@@ -45,15 +45,18 @@ if (isset($_SESSION['user_id'])) {
             <div class="hidden md:flex items-center space-x-6">
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="<?php echo $rootPath; ?>pages/user/dashboard.php" 
-                       class="text-gray-300 hover:text-white transition-colors <?php echo $currentPage == 'dashboard.php' ? 'text-amber-400' : ''; ?>">
+                       class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30 <?php echo $currentPage == 'dashboard.php' ? 'text-amber-400' : ''; ?>"
+                       aria-current="<?php echo $currentPage == 'dashboard.php' ? 'page' : 'false'; ?>">
                         <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
                     </a>
                     <a href="<?php echo $rootPath; ?>order.php" 
-                       class="text-gray-300 hover:text-white transition-colors <?php echo $currentPage == 'order.php' ? 'text-amber-400' : ''; ?>">
+                       class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30 <?php echo $currentPage == 'order.php' ? 'text-amber-400' : ''; ?>"
+                       aria-current="<?php echo $currentPage == 'order.php' ? 'page' : 'false'; ?>">
                         <i class="fas fa-plus mr-2"></i>Pesanan Baru
                     </a>
                     <a href="<?php echo $rootPath; ?>my-orders.php" 
-                       class="text-gray-300 hover:text-white transition-colors <?php echo $currentPage == 'my-orders.php' ? 'text-amber-400' : ''; ?>">
+                       class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30 <?php echo $currentPage == 'my-orders.php' ? 'text-amber-400' : ''; ?>"
+                       aria-current="<?php echo $currentPage == 'my-orders.php' ? 'page' : 'false'; ?>">
                         <i class="fas fa-shopping-bag mr-2"></i>Pesanan Saya
                     </a>
                     
@@ -90,31 +93,35 @@ if (isset($_SESSION['user_id'])) {
                         </button>
                         
                         <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                            <a href="<?php echo $rootPath; ?>pages/user/show-profile.php" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-t-lg">
+                            <a href="<?php echo $rootPath; ?>pages/user/show-profile.php" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-t-lg focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                                 <i class="fas fa-eye mr-2"></i>Lihat Profil
                             </a>
-                            <a href="<?php echo $rootPath; ?>settings.php" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">
+                            <a href="<?php echo $rootPath; ?>settings.php" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                                 <i class="fas fa-cog mr-2"></i>Pengaturan
                             </a>
                             <hr class="border-gray-700">
-                            <a href="<?php echo $rootPath; ?>pages/auth/logout.php" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300 rounded-b-lg">
+                            <a href="<?php echo $rootPath; ?>pages/auth/logout.php" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300 rounded-b-lg focus:outline-none focus:ring-2 focus:ring-red-400/30">
                                 <i class="fas fa-sign-out-alt mr-2"></i>Logout
                             </a>
                         </div>
                     </div>
                 <?php else: ?>
-                    <a href="<?php echo $rootPath; ?>pages/auth/login.php" class="text-gray-300 hover:text-white transition-colors">
+                    <?php $orderRedirect = $rootPath . 'pages/auth/login.php?redirect=' . urlencode($rootPath . 'order.php'); ?>
+                    <a href="<?php echo $rootPath; ?>pages/auth/login.php" class="text-gray-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                         <i class="fas fa-sign-in-alt mr-2"></i>Login
                     </a>
-                    <a href="<?php echo $rootPath; ?>pages/auth/register.php" class="bg-amber-600 hover:bg-amber-700 px-4 py-2 rounded-lg transition-colors">
+                    <a href="<?php echo $rootPath; ?>pages/auth/register.php" class="bg-amber-600 hover:bg-amber-700 px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/30">
                         <i class="fas fa-user-plus mr-2"></i>Daftar
+                    </a>
+                    <a href="<?php echo $orderRedirect; ?>" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-400/30">
+                        <i class="fas fa-rocket mr-2"></i>Buat Pesanan
                     </a>
                 <?php endif; ?>
             </div>
             
             <!-- Mobile menu button -->
             <div class="md:hidden">
-                <button id="mobile-menu-btn" class="text-gray-300 hover:text-white">
+                <button id="mobile-menu-btn" class="text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-amber-400/30" aria-controls="mobile-menu" aria-expanded="false">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
             </div>
@@ -156,9 +163,11 @@ if (isset($_SESSION['user_id'])) {
 </nav>
 
 <script>
-// Mobile menu toggle
+// Mobile menu toggle + a11y state
 document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
     const menu = document.getElementById('mobile-menu');
+    const expanded = this.getAttribute('aria-expanded') === 'true';
+    this.setAttribute('aria-expanded', String(!expanded));
     menu.classList.toggle('hidden');
 });
 </script>

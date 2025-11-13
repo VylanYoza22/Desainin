@@ -32,7 +32,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize floating particles
 function initializeParticles() {
     const particlesContainer = document.getElementById('particles');
-    const particleCount = 20;
+    if (!particlesContainer) return;
+    // Reduce particles on smaller screens for performance
+    const isMobile = window.matchMedia('(max-width: 640px)').matches;
+    const particleCount = isMobile ? 8 : 16;
 
     for (let i = 0; i < particleCount; i++) {
         createParticle(particlesContainer);
@@ -51,7 +54,8 @@ function createParticle(container) {
     // Random size and position
     const size = Math.random() * 6 + 2;
     const startX = Math.random() * window.innerWidth;
-    const animationDuration = Math.random() * 10 + 15;
+    // Slightly shorter duration for snappier feel
+    const animationDuration = Math.random() * 8 + 12;
     
     particle.style.cssText = `
         width: ${size}px;
@@ -177,14 +181,17 @@ function initializeNavigation() {
         });
     });
 
-    // Header scroll effect
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 100) {
-            header.style.background = 'rgba(0, 0, 0, 0.95)';
-        } else {
-            header.style.background = 'rgba(0, 0, 0, 0.9)';
-        }
-    });
+    // Header scroll effect (ensure header element exists)
+    const headerEl = document.querySelector('header, nav');
+    if (headerEl) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                headerEl.style.background = 'rgba(0, 0, 0, 0.95)';
+            } else {
+                headerEl.style.background = 'rgba(0, 0, 0, 0.9)';
+            }
+        });
+    }
 
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -522,6 +529,24 @@ function initializePriceCalculator() {
 
 // WhatsApp order function
 function orderWhatsApp(packageType = null) {
+    // Enforce login before allowing order via WhatsApp
+    try {
+        const isLoggedIn = typeof window.USER_LOGGED_IN !== 'undefined' ? window.USER_LOGGED_IN : false;
+        const loginUrl = typeof window.LOGIN_URL !== 'undefined' ? window.LOGIN_URL : 'pages/auth/login.php';
+        if (!isLoggedIn) {
+            // Inform user and redirect to login with redirect back to order page
+            if (typeof showNotification === 'function') {
+                showNotification('Silakan login terlebih dahulu untuk melakukan pemesanan.', 'error');
+            }
+            window.location.href = loginUrl;
+            return;
+        }
+    } catch (e) {
+        // If any error occurs, fail-safe: redirect to login
+        window.location.href = 'pages/auth/login.php';
+        return;
+    }
+
     const form = document.getElementById('orderForm');
     const formData = new FormData(form);
     

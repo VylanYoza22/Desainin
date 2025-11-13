@@ -6,6 +6,7 @@
 session_start();
 require_once '../../config/database.php';
 require_once '../../config/whatsapp_functions.php';
+require_once '../../config/helpers.php';
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -16,6 +17,7 @@ if (!isset($_SESSION['user_id'])) {
 $success = '';
 $error = '';
 $order = null;
+$user = null;
 
 // Get order ID from URL
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
@@ -39,6 +41,14 @@ if ($result->num_rows == 0) {
 $order = $result->fetch_assoc();
 $stmt->close();
 
+// Fetch current user (to get profile phone)
+$stmtU = $conn->prepare("SELECT id, full_name, email, phone FROM users WHERE id = ?");
+$stmtU->bind_param("i", $_SESSION['user_id']);
+$stmtU->execute();
+$resU = $stmtU->get_result();
+$user = $resU->fetch_assoc();
+$stmtU->close();
+
 // Check if order can be edited (only pending orders)
 if ($order['status'] !== 'pending') {
     $error = "Pesanan ini tidak dapat diedit karena sudah diproses.";
@@ -53,17 +63,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $order['status'] === 'pending') {
     $budget = $_POST['budget'];
     $deadline = $_POST['deadline'];
     $notes = trim($_POST['notes']);
-    $whatsapp = trim($_POST['whatsapp']);
+    // Use phone from profile
+    $profilePhone = trim($user['phone'] ?? '');
+    $formattedPhone = '';
     
     // Validate input
-    if (empty($title) || empty($description) || empty($whatsapp)) {
+    if (empty($title) || empty($description)) {
         $error = "Semua field wajib harus diisi.";
-    } else if (!preg_match('/^[0-9]{10,13}$/', $whatsapp)) {
-        $error = "Format nomor WhatsApp tidak valid. Gunakan 10-13 digit angka.";
+    } else if (empty($profilePhone)) {
+        $error = "Nomor WhatsApp pada profil Anda belum diisi. Silakan lengkapi nomor di profil terlebih dahulu.";
     } else {
+        $formattedPhone = validateWhatsAppNumber($profilePhone);
+        $digits = preg_replace('/[^0-9]/', '', $formattedPhone);
+        if (strlen($digits) < 10 || strlen($digits) > 15) {
+            $error = "Format nomor WhatsApp pada profil tidak valid. Perbarui nomor di profil Anda.";
+        }
+    }
+    
+    if (empty($error)) {
         // Update order
         $stmt = $conn->prepare("UPDATE orders SET service_type = ?, package_type = ?, title = ?, description = ?, budget = ?, deadline = ?, notes = ?, whatsapp_number = ?, updated_at = NOW() WHERE id = ? AND user_id = ?");
-        $stmt->bind_param("ssssdsssii", $service_type, $package_type, $title, $description, $budget, $deadline, $notes, $whatsapp, $order_id, $_SESSION['user_id']);
+        $stmt->bind_param("ssssdsssii", $service_type, $package_type, $title, $description, $budget, $deadline, $notes, $formattedPhone, $order_id, $_SESSION['user_id']);
         
         if ($stmt->execute()) {
             $success = "Pesanan berhasil diperbarui!";
@@ -209,12 +229,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $order['status'] === 'pending') {
                         </div>
                     </div>
 
-                    <!-- WhatsApp Number -->
-                    <div>
-                        <label for="whatsapp" class="block text-sm font-medium text-gray-300 mb-2">
-                            <i class="fab fa-whatsapp mr-2"></i>Nomor WhatsApp *
-                        </label>
-                        <input type="tel" name="whatsapp" id="whatsapp" required pattern="[0-9]{10,13}" value="<?php echo htmlspecialchars($order['whatsapp_number']); ?>" class="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-amber-400 transition-colors">
+                    <!-- WhatsApp info from profile -->
+                    <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                        <p class="text-sm text-gray-300">
+                            <i class="fab fa-whatsapp mr-2"></i>
+                            Nomor WhatsApp menggunakan nomor pada profil Anda:
+                            <span class="font-semibold text-white">
+                                <?php echo $user['phone'] ? htmlspecialchars($user['phone']) : 'Belum diisi'; ?>
+                            </span>
+                        </p>
+                        <p class="text-xs text-gray-400 mt-2">
+                            Untuk mengubah nomor, silakan perbarui di <a class="text-amber-400 hover:text-amber-300 underline" href="../../edit-profile.php">Edit Profil</a>.
+                        </p>
                     </div>
 
                     <!-- Additional Notes -->
